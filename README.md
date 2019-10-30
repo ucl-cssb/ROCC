@@ -1,18 +1,15 @@
 ## ROCC: Reinforcement learning for the Optimisation of Co-Cultures
 An application to train reinforcement learning to control a chemostat containing multiple interacting populations of bacteria.
 
-Has been tested on mac OSX and ubuntu.
 
 ### Installation
-To use the package within python scropts, `CBcurl` must be in PYTHONPATH.
-To use the package from the command line `CBcurl` must be in you $PATH variable
+To use the package within python scropts, `ROCC` must be in PYTHONPATH.
 
 ### Dependencies
 Standard python dependencies are required: `numpy`, `scipy`, `matplotlib`.`yaml` is required to parse parameter files. `argparse` is required for the command line application. `pytest` is required to run the unit tests, `TensorFlow` is required). Instructions for installing 'TensorFlow' can be found here:
  https://www.tensorflow.org/install/
 
 ### User Instructions
-`ROCC` can be used in two ways:
 Code files can be imported into scripts, see examples
 
 To run examples found in fitted_Q_iteration/examples from the command line:
@@ -20,7 +17,6 @@ To run examples found in fitted_Q_iteration/examples from the command line:
 $ python double_aux_example.py -s <save_path> -r <repeat_number>
 ```
   - -s, --save_path: path to save results
-
   - -r, --repeats: the repeat number, intended for use when running in parrellel as an array job on a cluster, set to 1 to run example
 
 
