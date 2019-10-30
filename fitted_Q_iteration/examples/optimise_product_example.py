@@ -3,7 +3,6 @@ import sys
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 # file path for fitted_Q_agents
-# file path for fitted_Q_agents
 FQ_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(FQ_DIR)
 
@@ -55,16 +54,16 @@ def run_test(save_path):
     env = ProductEnv(param_path, sampling_time, pop_scaling)
 
     agent = KerasFittedQAgent(layer_sizes  = [env.num_controlled_species,20,20,env.num_Cin_states**env.num_controlled_species])
-    #agent.load_network('/Users/ntreloar/Desktop/Projects/summer/fitted_Q_iteration/chemostat/double_aux/new_target/repeat9/saved_network.h5')
-    #agent.load_network('/Users/ntreloar/Desktop/Projects/summer/fitted_Q_iteration/chemostat/double_aux/results/100eps/training_on_random/saved_network.h5')
+
     train_trajectorys = []
+
     for i in range(n_episodes):
         print('EPISODE: ', i)
         explore_rate = agent.get_rate(i, 0, 1, n_episodes/10)
         print('\texplore_rate: ', explore_rate)
         initial_S = np.append(np.append(np.append(np.random.uniform(10000, 50000, 2), env.initial_C), env.initial_C0),env.initial_chems)
         env.reset(initial_S)
-        #env.state = (np.random.uniform(-0.5, 0.5), 0, np.random.uniform(-0.5, 0.5), 0)
+
         train_trajectory, train_r = agent.run_episode(env, explore_rate, tmax)
         train_trajectorys.append(train_trajectory)
         train_times.append(len(train_trajectory))

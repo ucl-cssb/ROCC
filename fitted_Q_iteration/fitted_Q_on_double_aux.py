@@ -71,7 +71,7 @@ def run_test(save_path):
         train_rewards.append(train_r)
         print('\treturn: ', train_r)
 
-        '''
+
         # testing EPISODE
         explore_rate = 0
         print('\ttest: ')
@@ -82,7 +82,7 @@ def run_test(save_path):
         env.plot_trajectory([0,1])
         test_times.append(len(test_trajectory))
         test_rewards.append(test_r)
-        '''
+        
 
 
     os.makedirs(save_path, exist_ok = True)

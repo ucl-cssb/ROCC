@@ -63,7 +63,6 @@ def run_test(save_path):
         explore_rate = agent.get_rate(i, 0, 1, n_episodes/10)
         print('explore rate: ', explore_rate)
         env.reset()
-        #env.state = (np.random.uniform(-0.5, 0.5), 0, np.random.uniform(-0.5, 0.5), 0)
         train_trajectory, train_r = agent.run_episode(env, explore_rate, tmax)
         train_trajectorys.append(train_trajectory)
         train_times.append(len(train_trajectory))

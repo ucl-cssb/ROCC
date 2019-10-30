@@ -55,12 +55,9 @@ class FittedQAgent():
         inputs = []
         targets = []
 
-        # DO THIS WITH NUMPY TO MAKE IT FASTER
         for trajectory in self.memory:
 
             for transition in trajectory:
-                # CHEKC TARGET IS BUILT CORRECTLY
-
                 state, action, cost, next_state, done = transition
                 inputs.append(state)
                 # construct target
@@ -103,13 +100,9 @@ class FittedQAgent():
         if inputs is None and targets is None:
             inputs, targets = self.get_inputs_targets()
 
-        #
-        #tf.initialize_all_variables() # resinitialise netowrk without adding to tensorflow graph
-        # try RMSprop and adam and maybe some from here https://arxiv.org/abs/1609.04747
-        self.reset_weights()
 
+        self.reset_weights()
         history = self.fit(inputs, targets)
-        #print('losses: ', history.history['loss'][0], history.history['loss'][-1])
         return history
 
     def run_episode(self, env, explore_rate, tmax, train = True, remember = True):
@@ -117,7 +110,7 @@ class FittedQAgent():
         Runs one fitted Q episode
 
         Parameters:
-         env: the enirovment to train on and control
+         env: the environment to train on and control
          explore_rate: explore rate for this episodes
          tmax: number of timesteps in the episode
          train: does the agent learn?
@@ -130,7 +123,7 @@ class FittedQAgent():
         # run trajectory with current policy and add to memory
         trajectory = []
         actions = []
-        #self.values = []
+
         state = env.get_state()
         episode_reward = 0
         self.single_ep_reward = []
@@ -170,21 +163,16 @@ class FittedQAgent():
 
 
             if len(self.memory[0]) * len(self.memory) < 100:
-                #n_iters = 4
                 n_iters = 4
             elif len(self.memory[0]) * len(self.memory) < 200:
-                #n_iters = 5
                 n_iters = 5
             else:
                 n_iters = 10
 
-            #n_iters = 0
             for _ in range(n_iters):
 
                 self.fitted_Q_update()
 
-        #env.plot_trajectory()
-        #plt.show()
         return env.sSol, episode_reward
 
     def neural_fitted_Q(self, env, n_episodes, tmax):
@@ -202,11 +190,8 @@ class FittedQAgent():
             print()
             print('EPISODE', i)
 
-
-            # CONSTANT EXPLORE RATE OF 0.1 worked well
             explore_rate = self.get_rate(i, 0, 1, 2.5)
-            #explore_rate = 0.1
-            #explore_rate = 0
+
             print('explore_rate:', explore_rate)
             env.reset()
             trajectory, reward = self.run_episode(env, explore_rate, tmax)
@@ -342,7 +327,7 @@ class KerasFittedQAgent(FittedQAgent):
         saver.restore(sess, save_path +"/saved/model.cpkt")
 
 
-    def load_network(self, load_path): #tested
+    def load_network(self, load_path): 
         '''
         Loads network weights from file
         '''
