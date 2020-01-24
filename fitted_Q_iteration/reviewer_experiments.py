@@ -29,7 +29,7 @@ def entry():
     arguments = parser.parse_args()
 
     # get number of repeats, if not supplied set to 1
-    repeat = int(arguments.repeat)
+    repeat = int(arguments.repeat) - 1
     experiment_number = repeat//6 # six repeats per parameter set
     suffix = experiment_number - 1 if experiment_number > 0 else ''
 
@@ -158,7 +158,7 @@ def run_test(param_path, save_path, reward_func):
     plt.savefig(save_path + '/values.png')
 
 
-    
+
     values = np.array(agent.values)
     np.save(save_path + '/values.npy', values)
     np.save(save_path + '/actions.npy', agent.actions)
