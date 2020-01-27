@@ -30,19 +30,21 @@ def entry():
 
     # get number of repeats, if not supplied set to 1
     repeat = int(arguments.repeat) - 1
-    experiment_number = repeat//6 # six repeats per parameter set
+    #experiment_number = repeat//6 # six repeats per parameter set
+    experiment_number = repeat//3
     suffix = experiment_number - 1 if experiment_number > 0 else ''
 
     param_path = os.path.join(os.path.join(os.path.join(C_DIR,'parameter_files'),  'reviewer_exp'), 'double_aux') + str(suffix)  + '.yaml'
     print('PARAMS: ', param_path)
-
+    
     save_path = os.path.join(arguments.save_path, 'repeat' + str(repeat))
     print(save_path)
     print(experiment_number)
-    reward_f = reward_func if repeat%6 in [0, 1, 2] else flipped_reward_func
+    #reward_f = reward_func if repeat%6 in [0, 1, 2] else flipped_reward_func
+    reward_f = flipped_reward_func
     print(reward_f)
     # choose param_path and save_path based on repeat number
-    run_test(param_path, save_path, reward_func)
+    run_test(param_path, save_path, reward_f)
 
 def run_test(param_path, save_path, reward_func):
 
@@ -61,8 +63,12 @@ def run_test(param_path, save_path, reward_func):
     test_times = []
     test_rewards = []
     pop_scaling = 100000
+    print(reward_func)
     env = ChemostatEnv(param_path, reward_func, sampling_time, pop_scaling)
-
+    print(env.reward_func)
+    print('REWARD:----------------------------------------------', env.reward_func(np.array([20000, 30000]), None, None))
+    print('REWARD:----------------------------------------------', env.reward_func(np.array([30000, 20000]), None, None))
+    print(env.reward_func)
     agent = KerasFittedQAgent(layer_sizes  = [env.num_controlled_species*update_timesteps,20,20,env.num_Cin_states**env.num_controlled_species])
     #agent.load_network('/Users/ntreloar/Desktop/Projects/summer/fitted_Q_iteration/chemostat/double_aux/new_target/repeat9/saved_network.h5')
     #agent.load_network('/Users/ntreloar/Desktop/Projects/summer/fitted_Q_iteration/chemostat/double_aux/results/100eps/training_on_random/saved_network.h5')
@@ -86,7 +92,7 @@ def run_test(param_path, save_path, reward_func):
         values = np.array(agent.values)
         env.plot_trajectory([0,1])
 
-
+        print('reward: ', train_r)
         '''
         plt.figure()
         for i in range(4):
