@@ -43,7 +43,6 @@ class FittedQAgent():
             self.values.append(values)
             action = np.argmax(values)
 
-
         assert action < self.n_actions, 'Invalid action'
         return action
 
@@ -327,7 +326,7 @@ class KerasFittedQAgent(FittedQAgent):
         saver.restore(sess, save_path +"/saved/model.cpkt")
 
 
-    def load_network(self, load_path): 
+    def load_network(self, load_path):
         '''
         Loads network weights from file
         '''

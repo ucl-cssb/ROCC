@@ -30,18 +30,18 @@ def entry():
 
     # get number of repeats, if not supplied set to 1
     repeat = int(arguments.repeat) - 1
-    #experiment_number = repeat//6 # six repeats per parameter set
-    experiment_number = repeat//3
+    experiment_number = repeat//6 # six repeats per parameter set
+    #experiment_number = repeat//3
     suffix = experiment_number - 1 if experiment_number > 0 else ''
 
     param_path = os.path.join(os.path.join(os.path.join(C_DIR,'parameter_files'),  'reviewer_exp'), 'double_aux') + str(suffix)  + '.yaml'
     print('PARAMS: ', param_path)
-    
+
     save_path = os.path.join(arguments.save_path, 'repeat' + str(repeat))
     print(save_path)
     print(experiment_number)
-    #reward_f = reward_func if repeat%6 in [0, 1, 2] else flipped_reward_func
-    reward_f = flipped_reward_func
+    reward_f = reward_func if repeat%6 in [0, 1, 2] else flipped_reward_func
+    #reward_f = flipped_reward_func
     print(reward_f)
     # choose param_path and save_path based on repeat number
     run_test(param_path, save_path, reward_f)
@@ -57,7 +57,7 @@ def run_test(param_path, save_path, reward_func):
     tmax = int((24*60)/n_mins) # set this to 24 hours
     #tmax = 10
     print('tmax: ', tmax)
-    n_episodes = 1
+    n_episodes = 30
     train_times = []
     train_rewards = []
     test_times = []
@@ -65,6 +65,10 @@ def run_test(param_path, save_path, reward_func):
     pop_scaling = 100000
     print(reward_func)
     env = ChemostatEnv(param_path, reward_func, sampling_time, pop_scaling)
+    print(env.action_to_Cin(0))
+    print(env.action_to_Cin(1))
+    print(env.action_to_Cin(2))
+    print(env.action_to_Cin(3))
     print(env.reward_func)
     print('REWARD:----------------------------------------------', env.reward_func(np.array([20000, 30000]), None, None))
     print('REWARD:----------------------------------------------', env.reward_func(np.array([30000, 20000]), None, None))
