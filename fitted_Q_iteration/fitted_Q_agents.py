@@ -35,7 +35,6 @@ class FittedQAgent():
         '''
 
         if np.random.random() < explore_rate:
-
             action = np.random.choice(range(self.layer_sizes[-1]))
 
         else:
@@ -54,6 +53,7 @@ class FittedQAgent():
         inputs = []
         targets = []
 
+        # iterate over all exprienc in memory and create fitted Q targets
         for trajectory in self.memory:
 
             for transition in trajectory:
@@ -70,7 +70,7 @@ class FittedQAgent():
                 #update the value for the taken action using cost function and current Q
 
                 if not done:
-                    values[action] = cost + self.gamma*np.max(next_values) # could introduce step size here, maybe not needed for neural agent
+                    values[action] = cost + self.gamma*np.max(next_values)
                 else:
                     values[action] = cost
 
@@ -134,7 +134,7 @@ class FittedQAgent():
 
             next_state, reward, done, info = env.step(action)
 
-            #cost = -cost # as cartpole default returns a reward
+
             assert len(next_state) == self.state_size, 'env return state of wrong size'
 
             self.single_ep_reward.append(reward)
@@ -151,10 +151,10 @@ class FittedQAgent():
             if done: break
 
 
-        if remember:
+        if remember: # store this episode
             self.memory.append(trajectory)
 
-        if train:
+        if train: # train the agent
 
             self.actions = actions
             self.episode_lengths.append(i)
@@ -245,6 +245,9 @@ class FittedQAgent():
 
 
 class KerasFittedQAgent(FittedQAgent):
+    '''
+    Implementation of the neural network using keras
+    '''
     def __init__(self, layer_sizes = [2,20,20,4]):
         self.memory = []
         self.layer_sizes = layer_sizes
@@ -262,7 +265,7 @@ class KerasFittedQAgent(FittedQAgent):
     def initialise_network(self, layer_sizes):
 
         '''
-        Creates Q network
+        Creates Q network for value function approximation
         '''
 
         tf.keras.backend.clear_session()
@@ -290,7 +293,7 @@ class KerasFittedQAgent(FittedQAgent):
         '''
         trains the Q network on a set of inputs and targets
         '''
-        history = self.network.fit(inputs, targets,  epochs = 300, verbose = 0) # TRY DIFFERENT EPOCHS
+        history = self.network.fit(inputs, targets,  epochs = 300, verbose = 0) 
         return history
 
     def reset_weights(model):

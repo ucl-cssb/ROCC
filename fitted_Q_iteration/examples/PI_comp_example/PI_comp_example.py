@@ -4,11 +4,11 @@ import sys
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 # file path for fitted_Q_agents
-FQ_DIR = os.path.dirname(os.path.abspath(__file__))
+FQ_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(FQ_DIR)
 
 # file path for chemostat_env
-C_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+C_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 C_DIR = os.path.join(C_DIR, 'chemostat_env')
 sys.path.append(C_DIR)
 
@@ -51,14 +51,15 @@ def run_test(save_path):
 
 
     og_save = save_path
-    n_episodes = 30
+    n_episodes = 1
+    n_fits = 1
     one_min = 0.016666666667
 
     pop_scaling = 100000
     SSEs = []
     #for n_mins in :
 
-    for n_mins in [1,2,3,4,5,10,20,30,40,50,60]:
+    for n_mins in [1]:
         save_path = og_save + '/'+str(n_mins)+'_minutes'
         os.makedirs(save_path, exist_ok = True)
         sampling_time = n_mins*one_min
@@ -70,8 +71,7 @@ def run_test(save_path):
 
         agent = KerasFittedQAgent(layer_sizes  = [env.num_controlled_species,20,20,env.num_controlled_species*env.num_Cin_states])
 
-
-
+        #generate data
         for i in range(n_episodes):
             print('EPISODE: ', i)
 
@@ -84,8 +84,7 @@ def run_test(save_path):
             env.reset()
             #env.state = (np.random.uniform(-0.5, 0.5), 0, np.random.uniform(-0.5, 0.5), 0)
             trajectory, train_r = agent.run_episode(env, explore_rate, tmax, train= False, remember = True)
-            os.makedirs(save_path + '/episode' + str(i), exist_ok = True)
-            #agent.save_network(save_path + '/episode' + str(i))
+
 
 
         print('number of training points: ', len(trajectory))
@@ -93,40 +92,38 @@ def run_test(save_path):
 
         # train iteratively on data
         train_rs = []
+        losses = []
         min_SSE = 0
-        explore_rate = 0
-        for i in range(20):
+        for i in range(n_fits):
+            print('EPISODE: ', i)
             history = agent.fitted_Q_update()
 
+            explore_rate = 0
             env.reset()
             trajectory, train_r = agent.run_episode(env, explore_rate, tmax, train = True, remember = False)
-
-            SSE = get_sum_squared_error([20000,30000], trajectory)
-
 
             train_rs.append(train_r)
 
         plt.figure()
         plt.plot(train_rs)
-        print(train_r)
+
 
         explore_rate = 0
         env.reset()
         trajectory, train_r = agent.run_episode(env, explore_rate, tmax, train= False)
-
-
+        SSE = get_sum_squared_error([20000,30000], trajectory)
         rewards = np.array(rewards)
 
         agent.save_results(save_path)
 
 
         env.plot_trajectory([0,1])
-        plt.savefig(save_path + '/final_trajectory' + str(SSE) +'.png')
-        np.save(save_path + '/final_trajectory' + str(SSE) + '.npy', env.sSol)
+        plt.savefig(save_path + '/final_trajectory' + str(SSE)+'.png')
+        np.save(save_path + '/final_trajectory' + str(SSE)+'.npy', env.sSol)
 
         plt.figure()
         plt.plot(train_rs)
         plt.savefig(save_path + '/episode_rewards.png')
 
 if __name__ == '__main__':
-    entry()
+    run_test('./PI_comp_example_results')

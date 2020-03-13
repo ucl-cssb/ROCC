@@ -3,11 +3,11 @@ import sys
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 # file path for fitted_Q_agents
-FQ_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FQ_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(FQ_DIR)
 
 # file path for chemostat_env
-C_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+C_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 C_DIR = os.path.join(C_DIR, 'chemostat_env')
 sys.path.append(C_DIR)
 
@@ -19,22 +19,6 @@ from argparse import ArgumentParser
 
 from reward_func import *
 
-def entry():
-    '''
-    Entry point for command line application handle the parsing of arguments and runs the relevant agent
-    '''
-    # define arguments
-    parser = ArgumentParser(description = 'Bacterial control app')
-    parser.add_argument('-s', '--save_path')
-    parser.add_argument('-r', '--repeat')
-    arguments = parser.parse_args()
-
-    # get number of repeats, if not supplied set to 1
-    repeat = int(arguments.repeat)
-
-    save_path = os.path.join(arguments.save_path, 'repeat' + str(repeat))
-
-    run_test(save_path)
 
 def run_test(save_path):
     param_path = os.path.join(C_DIR, 'parameter_files/double_aux.yaml')
@@ -97,4 +81,4 @@ def run_test(save_path):
 
 
 if __name__ == '__main__':
-    entry()
+    run_test('./double_aux_example_results')

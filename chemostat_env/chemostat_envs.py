@@ -511,7 +511,7 @@ class ProductEnv():
 
         reward, done = self.reward_func(self.state, None,None) # use this for custom transition cost
 
-        return self.state, reward, done, None #5% measurement noise
+        return self.state, reward, done, None
 
     def get_state(self):
         '''
@@ -550,8 +550,7 @@ class ProductEnv():
             Cin.append(self.Cin_bounds[0] + r*(self.Cin_bounds[1]-self.Cin_bounds[0])/(self.num_Cin_states-1))
 
         Cin = np.array(Cin).reshape(self.num_controlled_species,)
-        #print(np.clip(self.Cins[-1] + Cin, 0, 0.1), Cin)
-        #print(self.Cins)
+        
         return np.clip(Cin, 0, 0.1)
 
     def reset(self,initial_S = None):
