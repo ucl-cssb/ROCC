@@ -137,7 +137,7 @@ def run_test(param_path, save_path, reward_func):
     plt.plot(train_times)
     plt.xlabel('Timestep')
     plt.ylabel('Timesteps until terminal state')
-    plt.savefig(save_path + '/train_times.png')
+    plt.savefig(save_path + '/train_times.png', dpi = 600)
 
 
     env.plot_trajectory([0,1]) # the last test_trajectory
@@ -151,7 +151,7 @@ def run_test(param_path, save_path, reward_func):
     for i in [0,1]:
         plt.plot(np.linspace(0, len(xSol[:,0]) ,len(xSol[:,0])), xSol[:,i], label = env.labels[i])
     plt.legend()
-    plt.savefig(save_path + '/train_populations.png')
+    plt.savefig(save_path + '/train_populations.png', dpi = 600)
     np.save(save_path + '/train_trajectory.npy', train_trajectory)
 
 
@@ -165,7 +165,7 @@ def run_test(param_path, save_path, reward_func):
         plt.plot(values[:, i], label = 'action ' + str(i))
     plt.legend()
 
-    plt.savefig(save_path + '/values.png')
+    plt.savefig(save_path + '/values.png', dpi = 600)
 
 
 
