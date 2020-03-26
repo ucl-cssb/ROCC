@@ -12,7 +12,7 @@ export PYTHONPATH="${PYTHONPATH}:<path to ROCC_master>"
 ```
 
 ### Dependencies
-Standard python dependencies are required: `numpy`, `scipy`, `matplotlib`.`yaml` is required to parse parameter files. `argparse` is required for the command line application. `TensorFlow` is required). Instructions for installing 'TensorFlow' can be found here:
+Standard python dependencies are required: `numpy`, `scipy`, `matplotlib`.`yaml` is required to parse parameter files.  `TensorFlow` is required). Instructions for installing 'TensorFlow' can be found here:
  https://www.tensorflow.org/install/
 
 ### User Instructions
@@ -23,7 +23,6 @@ To run examples found in ROCC_master/examples from the command line, e.g.:
 ```console
 $ python double_aux_example.py 
 ```
-
 
 The examples will automatically save some results in the directory:
 
