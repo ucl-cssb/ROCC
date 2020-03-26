@@ -5,6 +5,8 @@ An application to train reinforcement learning to control a chemostat containing
 ### Installation
 To use the package within python scropts, `ROCC` must be in PYTHONPATH.
 
+To add to PYTHONPATH on a bash system add the following to the ~/.bashrc file
+
 ### Dependencies
 Standard python dependencies are required: `numpy`, `scipy`, `matplotlib`.`yaml` is required to parse parameter files. `argparse` is required for the command line application. `pytest` is required to run the unit tests, `TensorFlow` is required). Instructions for installing 'TensorFlow' can be found here:
  https://www.tensorflow.org/install/
@@ -12,7 +14,6 @@ Standard python dependencies are required: `numpy`, `scipy`, `matplotlib`.`yaml`
 ### User Instructions
 Code files can be imported into scripts, ensure the ROCC directory is in PYTHONPATH and simply import ROCC. See examples.
 
-To add to PYTHONPATH on a bash system add the following to the ~/.bashrc file
 
 ```console
 export PYTHONPATH="${PYTHONPATH}:<path to ROCC_master>"
