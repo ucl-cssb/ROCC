@@ -8,7 +8,7 @@ To use the package within python scropts, `ROCC` must be in PYTHONPATH.
 To add to PYTHONPATH on a bash system add the following to the ~/.bashrc file
 
 ### Dependencies
-Standard python dependencies are required: `numpy`, `scipy`, `matplotlib`.`yaml` is required to parse parameter files. `argparse` is required for the command line application. `pytest` is required to run the unit tests, `TensorFlow` is required). Instructions for installing 'TensorFlow' can be found here:
+Standard python dependencies are required: `numpy`, `scipy`, `matplotlib`.`yaml` is required to parse parameter files. `argparse` is required for the command line application. `TensorFlow` is required). Instructions for installing 'TensorFlow' can be found here:
  https://www.tensorflow.org/install/
 
 ### User Instructions
