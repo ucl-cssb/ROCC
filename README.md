@@ -25,7 +25,7 @@ $ python double_aux_example.py
 ```
 
 
-The examples will automatically save some results in the directory.
+The examples will automatically save some results in the directory:
 
 
 Where train_trajectory.npy is the system trajectory under control of the trained agent, train_populations.png is a graph of the populations, train_returns.png is a graph of the return recieved in each episode.
