@@ -32,7 +32,7 @@ Where train_trajectory.npy is the system trajectory under control of the trained
 
 Any .yaml parameter file can be defined. Examples of these for multiple two and three species systems are found in the chemostat_env/parameter_files directory. Training parameters are set in the top of the scripts.
 
-The main classes are the fitted_Q_agents and chemostat_env, see examples for how to use these:
+The main classes are the fitted_Q_agents and chemostat_envs, see examples for how to use these:
 
 ### fitted_Q_iteration
 The fitted_Q_agents.py file can be imported and used on any RL task.
