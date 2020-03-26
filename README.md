@@ -10,9 +10,16 @@ Standard python dependencies are required: `numpy`, `scipy`, `matplotlib`.`yaml`
  https://www.tensorflow.org/install/
 
 ### User Instructions
-Code files can be imported into scripts, see examples
+Code files can be imported into scripts, ensure the ROCC directory is in PYTHONPATH and simply import ROCC. See examples.
+
+To add to PYTHONPATH on a bash system add the following to the ~/.bashrc file
 
 To run examples found in fitted_Q_iteration/examples from the command line:
+
+```console
+export PYTHONPATH="${PYTHONPATH}:<path to ROCC_master>"
+```
+
 ```console
 $ python double_aux_example.py -s <save_path> -r <repeat_number>
 ```
