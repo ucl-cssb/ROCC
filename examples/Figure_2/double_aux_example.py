@@ -5,8 +5,6 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 from ROCC import *
 
 
-
-
 def run_test(save_path):
     P_DIR = os.path.join(os.path.join(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'ROCC'), 'chemostat_env'), 'parameter_files')
     print(P_DIR)
@@ -69,7 +67,7 @@ def run_test(save_path):
     plt.ylabel('Return')
     plt.plot(train_rewards)
     plt.savefig(save_path + '/train_returns.png')
-
+    np.save(save_path + '/train_returns.npy', train_returns)
 
     N = 200
     state_action = np.zeros((N,N))
@@ -120,7 +118,7 @@ def run_test(save_path):
     plt.xlabel('N1 state')
     plt.ylabel('N2 state')
     plt.savefig('state_action' + str(agent_n)+'.png', dpi = 600)
-    #plt.savefig('heat_map.png')
+    np.save(save_path + '/state_action.npy', np.array(state_action))
 
     ''' PLOT VALUE FUNCTION'''
 
@@ -142,7 +140,7 @@ def run_test(save_path):
     plt.xlabel('N1 state')
     plt.ylabel('N2 state')
     plt.savefig('value_func' + str(agent_n)+'.png', dpi = 600)
-
+    np.save(save_path + '/value_func.npy', np.array(value_func))
 
 
 if __name__ == '__main__':
