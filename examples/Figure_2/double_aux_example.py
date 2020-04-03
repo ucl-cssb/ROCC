@@ -1,7 +1,7 @@
 import os
 import sys
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
-
+import matplotlib.colors as colors
 from ROCC import *
 
 
@@ -19,9 +19,8 @@ def run_test(save_path):
     print('tmax: ', tmax)
     n_episodes = 30
     train_times = []
-    train_rewards = []
-    test_times = []
-    test_rewards = []
+    train_returns = []
+
     pop_scaling = 100000
     env = ChemostatEnv(param_path, reward_func, sampling_time,  pop_scaling)
 
@@ -37,13 +36,13 @@ def run_test(save_path):
         train_trajectory, train_r = agent.run_episode(env, explore_rate, tmax)
         train_trajectorys.append(train_trajectory)
         train_times.append(len(train_trajectory))
-        train_rewards.append(train_r)
+        train_returns.append(train_r)
         print('return: ', train_r)
 
 
     os.makedirs(save_path, exist_ok = True)
 
-    train_rewards = np.array(train_rewards)
+    train_returns = np.array(train_returns)
 
     train_times = np.array(train_times)
 
@@ -65,7 +64,7 @@ def run_test(save_path):
     plt.figure()
     plt.xlabel('Episode')
     plt.ylabel('Return')
-    plt.plot(train_rewards)
+    plt.plot(train_returns)
     plt.savefig(save_path + '/train_returns.png')
     np.save(save_path + '/train_returns.npy', train_returns)
 
@@ -87,11 +86,6 @@ def run_test(save_path):
 
             value_function[i,j] = max(values)
             state_action[i,j] = action + 1
-
-    #state_action *= visited_mask
-    #value_function *= visited_mask
-    print(np.flip(state_action.T, 0))
-
 
 
     ''' PLOT HEATMAP OF ACTIONS'''
@@ -117,7 +111,7 @@ def run_test(save_path):
 
     plt.xlabel('N1 state')
     plt.ylabel('N2 state')
-    plt.savefig('state_action' + str(agent_n)+'.png', dpi = 600)
+    plt.savefig(save_path + 'state_action.png', dpi = 600)
     np.save(save_path + '/state_action.npy', np.array(state_action))
 
     ''' PLOT VALUE FUNCTION'''
@@ -139,8 +133,8 @@ def run_test(save_path):
 
     plt.xlabel('N1 state')
     plt.ylabel('N2 state')
-    plt.savefig('value_func' + str(agent_n)+'.png', dpi = 600)
-    np.save(save_path + '/value_func.npy', np.array(value_func))
+    plt.savefig(save_path + 'value_func.png', dpi = 600)
+    np.save(save_path + '/value_func.npy', np.array(value_function))
 
 
 if __name__ == '__main__':
