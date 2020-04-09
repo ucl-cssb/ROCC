@@ -53,10 +53,10 @@ def run_test(save_path):
     plt.ylabel('Population ($10^6 cells L^{-1}$)')
     plt.hlines([20000, 30000], 0, 288*5, color = 'g', label = 'target')
     plt.xlim(left = 0)
-    plt.xlim(right = 1440)
+
     xSol = np.array(train_trajectory)
     for i in [0,1]:
-        plt.plot(np.linspace(0, len(xSol[:,0]) ,len(xSol[:,0])), xSol[:,i], label = env.labels[i])
+        plt.plot(np.linspace(0, len(xSol[:,0]) ,len(xSol[:,0]))*5, xSol[:,i], label = env.labels[i])
     plt.legend()
     plt.savefig(save_path + '/train_populations.png')
     np.save(save_path + '/train_trajectory.npy', train_trajectory)
@@ -111,7 +111,7 @@ def run_test(save_path):
 
     plt.xlabel('N1 state')
     plt.ylabel('N2 state')
-    plt.savefig(save_path + 'state_action.png', dpi = 600)
+    plt.savefig(save_path + '/state_action.png', dpi = 600)
     np.save(save_path + '/state_action.npy', np.array(state_action))
 
     ''' PLOT VALUE FUNCTION'''
@@ -133,7 +133,7 @@ def run_test(save_path):
 
     plt.xlabel('N1 state')
     plt.ylabel('N2 state')
-    plt.savefig(save_path + 'value_func.png', dpi = 600)
+    plt.savefig(save_path + '/value_func.png', dpi = 600)
     np.save(save_path + '/value_func.npy', np.array(value_function))
 
 
