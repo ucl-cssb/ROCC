@@ -2,9 +2,8 @@ import os
 import sys
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-import ROCC
+from ROCC import *
 
-from argparse import ArgumentParser
 
 def run_test(save_path):
     P_DIR = os.path.join(os.path.join(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'ROCC'), 'chemostat_env'), 'parameter_files')
@@ -57,19 +56,18 @@ def run_test(save_path):
     train_times = np.array(train_times)
 
 
+
     # plot the last train trajectory
     plt.figure()
+    plt.xlabel('Time (minutes)')
+    plt.ylabel('Population ($10^6 cells L^{-1}$)')
+    plt.hlines([20000, 30000], 0, 288*5, color = 'g', label = 'target')
+    plt.xlim(left = 0)
 
     xSol = np.array(train_trajectory)
     for i in [0,1]:
-        plt.plot(np.linspace(0, len(xSol[:,0]) ,len(xSol[:,0])), xSol[:,i], label = env.labels[i])
+        plt.plot(np.linspace(0, len(xSol[:,0]) ,len(xSol[:,0]))*5, xSol[:,i], label = env.labels[i])
     plt.legend()
-    plt.xlabel('Time (minutes)')
-    plt.ylabel('Population ($10^6 cells L^{-1}$)')
-    plt.ylim(bottom = 15000)
-    plt.xlim(left = 0)
-    plt.xlim(right = 1440)
-    plt.hlines([20000, 30000], 0, 288*5, color = 'g', label = 'target')
     plt.savefig(save_path + '/train_populations.png')
     np.save(save_path + '/train_trajectory.npy', train_trajectory)
 
@@ -78,8 +76,8 @@ def run_test(save_path):
     plt.xlabel('Episode')
     plt.ylabel('Return')
     plt.plot(train_rewards)
-    plt.savefig(save_path + '/train_rewards.png')
-
+    plt.savefig(save_path + '/train_returns.png')
+    np.save(save_path + '/train_returns.npy', np.array(train_rewards))
 
 
 

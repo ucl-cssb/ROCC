@@ -3,9 +3,7 @@ import sys
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-import ROCC
-
-from argparse import ArgumentParser
+from ROCC import *
 
 
 from reward_func import *
@@ -34,7 +32,6 @@ def get_sum_squared_error(target, trajectory):
     Ns = trajectory[:,0:2]
     SSE = sum(sum(np.absolute(Ns - target)))
     return SSE
-
 
 def run_test(save_path):
     P_DIR = os.path.join(os.path.join(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'ROCC'), 'chemostat_env'), 'parameter_files')
@@ -115,7 +112,7 @@ def run_test(save_path):
 
         plt.figure()
         plt.plot(train_rs)
-        plt.savefig(save_path + '/episode_rewards.png')
+        plt.savefig(save_path + '/train_returns.png')
 
 if __name__ == '__main__':
     run_test('./PI_comp_example_results')

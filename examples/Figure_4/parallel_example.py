@@ -2,11 +2,7 @@ import sys
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-import ROCC
-
-from argparse import ArgumentParser
-
-
+from ROCC import *
 
 
 def run_test(save_path):
@@ -67,7 +63,7 @@ def run_test(save_path):
     train_rewards = np.array(train_rewards)
 
 
-    np.save(save_path + '/train_rewards.npy', train_rewards)
+    np.save(save_path + 'train_returns.npy', train_rewards)
 
     agent.save_network(save_path)
 
@@ -80,7 +76,7 @@ def run_test(save_path):
 
     plt.figure()
     plt.plot(train_rewards)
-    plt.savefig(save_path + '/train_rewards.png')
+    plt.savefig(save_path + '/train_returns.png')
 
 
 
