@@ -34,6 +34,7 @@ class FittedQAgent():
             values = self.predict(state)
             self.values.append(values)
             action = np.argmax(values)
+            self.actions.append(action)
 
         assert action < self.n_actions, 'Invalid action'
         return action
@@ -264,6 +265,7 @@ class KerasFittedQAgent(FittedQAgent):
         self.single_ep_reward = []
         self.total_loss = 0
         self.values = []
+        self.actions = []
 
     def initialise_network(self, layer_sizes):
 
