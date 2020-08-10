@@ -17,7 +17,7 @@ def run_test(save_path):
     tmax = int((24*60)/n_mins) # set this to 24 hours
     #tmax = 10
     print('tmax: ', tmax)
-    n_episodes = 30
+    n_episodes = 1
     train_times = []
     train_returns = []
 
@@ -80,11 +80,11 @@ def run_test(save_path):
     for i in range(0, N):
         for j in range(0, N):
 
-            values = agent.predict(np.array([(min_pop + i*(max_pop-min_pop)/N)/pop_scaling, (min_pop + j*(max_pop-min_pop)/N)/pop_scaling]))
+            values = agent.predict(np.array([(min_pop + i*(max_pop-min_pop)/N)/pop_scaling, (min_pop + j*(max_pop-min_pop)/N)/pop_scaling]))[0]
 
             action = np.argmax(values)
 
-            value_function[i,j] = max(values)
+            value_function[i,j] = np.max(values)
             state_action[i,j] = action + 1
 
 
