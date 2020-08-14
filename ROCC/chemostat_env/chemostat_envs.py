@@ -207,7 +207,7 @@ class ChemostatEnv():
         self.sSol = np.append(self.sSol,self.S.reshape(1,len(self.S)), axis = 0)
         self.state = self.get_state()
 
-        reward, done = self.reward_func(self.S[0:2], None,None) # use this for custom transition cost
+        reward, done = self.reward_func(self.S[0:self.num_species], None,None) # use this for custom transition cost
 
         return self.state, reward, done, None
 
@@ -607,3 +607,4 @@ class ProductEnv():
 
         '''
         return self.q*self.S[-1]/100000, False
+

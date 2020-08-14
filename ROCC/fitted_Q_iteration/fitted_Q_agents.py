@@ -32,6 +32,7 @@ class FittedQAgent():
 
         else:
             values = self.predict(state)
+
             self.values.append(values)
             action = np.argmax(values)
             self.actions.append(action)
@@ -86,26 +87,27 @@ class FittedQAgent():
 
         # shuffle inputs and target for IID
         inputs, targets  = np.array(states), np.array(values)
+
+
         randomize = np.arange(len(inputs))
         np.random.shuffle(randomize)
         inputs = inputs[randomize]
         targets = targets[randomize]
+
         return inputs, targets
 
     def fitted_Q_update(self, inputs = None, targets = None):
         '''
         Uses a set of inputs and targets to update the Q network
         '''
-        t = time.time()
+
         if inputs is None and targets is None:
             inputs, targets = self.get_inputs_targets()
 
-
-        t = time.time()
         self.reset_weights()
 
 
-        t = time.time()
+
         history = self.fit(inputs, targets)
         return history
 
@@ -138,7 +140,7 @@ class FittedQAgent():
             actions.append(action)
 
             next_state, reward, done, info = env.step(action)
-
+            done = False
 
             assert len(next_state) == self.state_size, 'env return state of wrong size'
 
@@ -257,7 +259,7 @@ class KerasFittedQAgent(FittedQAgent):
         self.memory = []
         self.layer_sizes = layer_sizes
         self.network = self.initialise_network(layer_sizes)
-        self.gamma = 0.99
+        self.gamma = 0.95
         self.state_size = layer_sizes[0]
         self.n_actions = layer_sizes[-1]
         self.episode_lengths = []
@@ -277,12 +279,13 @@ class KerasFittedQAgent(FittedQAgent):
         initialiser = keras.initializers.RandomUniform(minval = -0.5, maxval = 0.5, seed = None)
         positive_initialiser = keras.initializers.RandomUniform(minval = 0., maxval = 0.35, seed = None)
         regulariser = keras.regularizers.l1_l2(l1=0.01, l2=0.01)
-        network = keras.Sequential([
-            keras.layers.InputLayer([layer_sizes[0]]),
-            keras.layers.Dense(layer_sizes[1], activation = tf.nn.relu),
-            keras.layers.Dense(layer_sizes[2], activation = tf.nn.relu),
-            keras.layers.Dense(layer_sizes[3]) # linear output layer
-        ])
+        network = keras.Sequential()
+        network.add(keras.layers.InputLayer([layer_sizes[0]]))
+
+        for l in layer_sizes[1:-1]:
+            network.add(keras.layers.Dense(l, activation = tf.nn.relu))
+        network.add(keras.layers.Dense(layer_sizes[-1])) # linear output layer
+
 
         network.compile(optimizer = 'adam', loss = 'mean_squared_error') # TRY DIFFERENT OPTIMISERS
         return network
@@ -298,7 +301,7 @@ class KerasFittedQAgent(FittedQAgent):
         '''
         trains the Q network on a set of inputs and targets
         '''
-        history = self.network.fit(inputs, targets,  epochs = 150, verbose = False)
+        history = self.network.fit(inputs, targets,  epochs = 500, batch_size = 256, verbose = False)
         return history
 
     def reset_weights(self):
