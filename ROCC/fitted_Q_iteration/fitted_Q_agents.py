@@ -259,7 +259,7 @@ class KerasFittedQAgent(FittedQAgent):
         self.memory = []
         self.layer_sizes = layer_sizes
         self.network = self.initialise_network(layer_sizes)
-        self.gamma = 0.95
+        self.gamma = 1
         self.state_size = layer_sizes[0]
         self.n_actions = layer_sizes[-1]
         self.episode_lengths = []
