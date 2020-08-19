@@ -67,11 +67,12 @@ class FittedQAgent():
                 rewards.append(reward)
                 dones.append(done)
 
+        print('shapes ', len(states), len(next_states), len(actions), len(rewards))
         states = np.array(states)
         next_states = np.array(next_states, dtype=np.float64)
         actions = np.array(actions)
         rewards = np.array(rewards)
-
+        print('shapes ', states.shape, next_states.shape, actions.shape, rewards.shape)
         # construct target
         values = self.predict(states)
         next_values = self.predict(next_states)
