@@ -207,10 +207,23 @@ class ChemostatEnv():
         self.sSol = np.append(self.sSol,self.S.reshape(1,len(self.S)), axis = 0)
         self.state = self.get_state()
 
-        reward, done = self.reward_func(self.S[0:self.num_species], None,None) # use this for custom transition cost
+        reward, done = self.reward_func(self.S[0:2], None,None) # use this for custom transition cost
 
         return self.state, reward, done, None
+    '''
+    def step_mutation_experiment(self, action):
+        # change N1 growth rate if it has mutated.
 
+
+        t0 = 5 # time when mutation occurs
+        t_col = 10 # time for mutated colony to colonise chemostat
+        increase = 0.1
+
+        if t0 < self.sSol.shape[0] < t0 + t_col:
+            self.umax[0] += increase/t_col# linear ramp
+
+        return(self.step(action))
+    '''
 
     def get_state(self):
         '''
@@ -497,6 +510,8 @@ class ProductEnv():
         '''
         Cin = self.action_to_Cin(action)
 
+        #add noise
+        #Cin = np.random.normal(Cin, 0.1*Cin) #10% pump noise
 
         self.Cins.append(Cin)
 
@@ -506,12 +521,14 @@ class ProductEnv():
 
         self.S = sol[-1,:]
 
+        #print(self.S)
+        #self.sSol = np.append(self.sSol, np.random.normal(self.S.reshape(1,len(self.S)), self.S.reshape(1,len(self.S))*0.05), axis = 0)
         self.sSol = np.append(self.sSol,self.S.reshape(1,len(self.S)), axis = 0)
         self.state = self.get_state()
 
         reward, done = self.reward_func(self.state, None,None) # use this for custom transition cost
 
-        return self.state, reward, done, None
+        return self.state, reward, done, None #5% measurement noise
 
     def get_state(self):
         '''
@@ -550,7 +567,8 @@ class ProductEnv():
             Cin.append(self.Cin_bounds[0] + r*(self.Cin_bounds[1]-self.Cin_bounds[0])/(self.num_Cin_states-1))
 
         Cin = np.array(Cin).reshape(self.num_controlled_species,)
-        
+        #print(np.clip(self.Cins[-1] + Cin, 0, 0.1), Cin)
+        #print(self.Cins)
         return np.clip(Cin, 0, 0.1)
 
     def reset(self,initial_S = None):
@@ -607,4 +625,3 @@ class ProductEnv():
 
         '''
         return self.q*self.S[-1]/100000, False
-

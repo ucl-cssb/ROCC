@@ -4,10 +4,17 @@ import numpy as np
 import tensorflow as tf
 import math
 import random
-import time
+
 from tensorflow import keras
 
 
+'''
+import torch
+import torch.nn as nn
+
+import torch.optim as optim
+import torch.nn.functional as F
+'''
 import matplotlib.pyplot as plt
 
 class FittedQAgent():
@@ -28,14 +35,14 @@ class FittedQAgent():
         '''
 
         if np.random.random() < explore_rate:
+
             action = np.random.choice(range(self.layer_sizes[-1]))
 
         else:
             values = self.predict(state)
-
             self.values.append(values)
             action = np.argmax(values)
-            self.actions.append(action)
+
 
         assert action < self.n_actions, 'Invalid action'
         return action
@@ -45,49 +52,37 @@ class FittedQAgent():
         gets fitted Q inputs and calculates targets for training the Q-network for episodic training
         '''
 
-
+        inputs = []
         targets = []
 
-
-        states = []
-        next_states = []
-        actions = []
-        rewards = []
-        dones = []
-
-        # iterate over all exprienc in memory and create fitted Q targets
+        # DO THIS WITH NUMPY TO MAKE IT FASTER
         for trajectory in self.memory:
 
             for transition in trajectory:
-                state, action, reward, next_state, done = transition
+                # CHEKC TARGET IS BUILT CORRECTLY
 
-                states.append(state)
-                next_states.append(next_state)
-                actions.append(action)
-                rewards.append(reward)
-                dones.append(done)
+                state, action, cost, next_state, done = transition
+                inputs.append(state)
+                # construct target
+                values = self.predict(state)
 
-        print('shapes ', len(states), len(next_states), len(actions), len(rewards))
-        states = np.array(states)
-        next_states = np.array(next_states, dtype=np.float64)
-        actions = np.array(actions)
-        rewards = np.array(rewards)
-        print('shapes ', states.shape, next_states.shape, actions.shape, rewards.shape)
-        # construct target
-        values = self.predict(states)
-        next_values = self.predict(next_states)
+                next_values = self.predict(next_state)
 
-        #update the value for the taken action using cost function and current Q
-        for i in range(len(next_states)):
-            # print(actions[i], rewards[i])
-            if dones[i]:
+                assert len(values) == self.n_actions, 'neural network returning wrong number of values'
+                assert len(next_values) == self.n_actions, 'neural network returning wrong number of values'
 
-                values[i, actions[i]] = rewards[i]
-            else:
-                values[i, actions[i]] = rewards[i] + self.gamma * np.max(next_values[i])
+                #update the value for the taken action using cost function and current Q
+
+                if not done:
+                    values[action] = cost + self.gamma*np.max(next_values) # could introduce step size here, maybe not needed for neural agent
+                else:
+                    values[action] = cost
+
+                targets.append(values)
 
         # shuffle inputs and target for IID
-        inputs, targets  = np.array(states), np.array(values)
+        inputs, targets  = np.array(inputs), np.array(targets)
+
 
 
         randomize = np.arange(len(inputs))
@@ -95,6 +90,9 @@ class FittedQAgent():
         inputs = inputs[randomize]
         targets = targets[randomize]
 
+
+        assert inputs.shape[1] == self.state_size, 'inputs to network wrong size'
+        assert targets.shape[1] == self.n_actions, 'targets for network wrong size'
         return inputs, targets
 
     def fitted_Q_update(self, inputs = None, targets = None):
@@ -105,11 +103,13 @@ class FittedQAgent():
         if inputs is None and targets is None:
             inputs, targets = self.get_inputs_targets()
 
+        #
+        #tf.initialize_all_variables() # resinitialise netowrk without adding to tensorflow graph
+        # try RMSprop and adam and maybe some from here https://arxiv.org/abs/1609.04747
         self.reset_weights()
 
-
-
         history = self.fit(inputs, targets)
+        #print('losses: ', history.history['loss'][0], history.history['loss'][-1])
         return history
 
     def run_episode(self, env, explore_rate, tmax, train = True, remember = True):
@@ -117,7 +117,7 @@ class FittedQAgent():
         Runs one fitted Q episode
 
         Parameters:
-         env: the environment to train on and control
+         env: the enirovment to train on and control
          explore_rate: explore rate for this episodes
          tmax: number of timesteps in the episode
          train: does the agent learn?
@@ -130,7 +130,7 @@ class FittedQAgent():
         # run trajectory with current policy and add to memory
         trajectory = []
         actions = []
-
+        #self.values = []
         state = env.get_state()
         episode_reward = 0
         self.single_ep_reward = []
@@ -141,8 +141,8 @@ class FittedQAgent():
             actions.append(action)
 
             next_state, reward, done, info = env.step(action)
-            done = False
 
+            #cost = -cost # as cartpole default returns a reward
             assert len(next_state) == self.state_size, 'env return state of wrong size'
 
             self.single_ep_reward.append(reward)
@@ -159,10 +159,10 @@ class FittedQAgent():
             if done: break
 
 
-        if remember: # store this episode
+        if remember:
             self.memory.append(trajectory)
 
-        if train: # train the agent
+        if train:
 
             self.actions = actions
             self.episode_lengths.append(i)
@@ -170,16 +170,21 @@ class FittedQAgent():
 
 
             if len(self.memory[0]) * len(self.memory) < 100:
+                #n_iters = 4
                 n_iters = 4
             elif len(self.memory[0]) * len(self.memory) < 200:
+                #n_iters = 5
                 n_iters = 5
             else:
                 n_iters = 10
 
+            #n_iters = 0
             for _ in range(n_iters):
 
                 self.fitted_Q_update()
 
+        #env.plot_trajectory()
+        #plt.show()
         return env.sSol, episode_reward
 
     def neural_fitted_Q(self, env, n_episodes, tmax):
@@ -197,8 +202,11 @@ class FittedQAgent():
             print()
             print('EPISODE', i)
 
-            explore_rate = self.get_rate(i, 0, 1, 2.5)
 
+            # CONSTANT EXPLORE RATE OF 0.1 worked well
+            explore_rate = self.get_rate(i, 0, 1, 2.5)
+            #explore_rate = 0.1
+            #explore_rate = 0
             print('explore_rate:', explore_rate)
             env.reset()
             trajectory, reward = self.run_episode(env, explore_rate, tmax)
@@ -253,14 +261,11 @@ class FittedQAgent():
 
 
 class KerasFittedQAgent(FittedQAgent):
-    '''
-    Implementation of the neural network using keras
-    '''
     def __init__(self, layer_sizes = [2,20,20,4]):
         self.memory = []
         self.layer_sizes = layer_sizes
         self.network = self.initialise_network(layer_sizes)
-        self.gamma = 1
+        self.gamma = 0.9
         self.state_size = layer_sizes[0]
         self.n_actions = layer_sizes[-1]
         self.episode_lengths = []
@@ -268,25 +273,24 @@ class KerasFittedQAgent(FittedQAgent):
         self.single_ep_reward = []
         self.total_loss = 0
         self.values = []
-        self.actions = []
+
 
     def initialise_network(self, layer_sizes):
 
         '''
-        Creates Q network for value function approximation
+        Creates Q network
         '''
 
         tf.keras.backend.clear_session()
         initialiser = keras.initializers.RandomUniform(minval = -0.5, maxval = 0.5, seed = None)
         positive_initialiser = keras.initializers.RandomUniform(minval = 0., maxval = 0.35, seed = None)
         regulariser = keras.regularizers.l1_l2(l1=0.01, l2=0.01)
-        network = keras.Sequential()
-        network.add(keras.layers.InputLayer([layer_sizes[0]]))
-
-        for l in layer_sizes[1:-1]:
-            network.add(keras.layers.Dense(l, activation = tf.nn.relu))
-        network.add(keras.layers.Dense(layer_sizes[-1])) # linear output layer
-
+        network = keras.Sequential([
+            keras.layers.InputLayer([layer_sizes[0]]),
+            keras.layers.Dense(layer_sizes[1], activation = tf.nn.relu),
+            keras.layers.Dense(layer_sizes[2], activation = tf.nn.relu),
+            keras.layers.Dense(layer_sizes[3]) # linear output layer
+        ])
 
         network.compile(optimizer = 'adam', loss = 'mean_squared_error') # TRY DIFFERENT OPTIMISERS
         return network
@@ -296,23 +300,21 @@ class KerasFittedQAgent(FittedQAgent):
         Predicts value estimates for each action base on currrent states
         '''
 
-        return self.network.predict(state.reshape(-1,self.layer_sizes[0]))
+        return self.network.predict(state.reshape(1,-1))[0]
 
     def fit(self, inputs, targets):
         '''
         trains the Q network on a set of inputs and targets
         '''
-        history = self.network.fit(inputs, targets,  epochs = 500, batch_size = 256, verbose = False)
+        history = self.network.fit(inputs, targets,  epochs = 300, verbose = 0) # TRY DIFFERENT EPOCHS
         return history
 
-    def reset_weights(self):
+    def reset_weights(model):
         '''
         Reinitialises weights to random values
         '''
-        #sess = tf.keras.backend.get_session()
-        #sess.run(tf.global_variables_initializer())
-        t = time.time()
-        self.network = self.initialise_network(self.layer_sizes)
+        sess = tf.keras.backend.get_session()
+        sess.run(tf.global_variables_initializer())
 
     def save_network(self, save_path):
         '''
@@ -328,6 +330,7 @@ class KerasFittedQAgent(FittedQAgent):
         sess = tf.keras.backend.get_session()
         path = saver.save(sess, save_path + "/saved/model.cpkt")
 
+
     def load_network_tensorflow(self, save_path):
         '''
         Loads network weights from file using pure tensorflow, kerassaver seems to crash sometimes
@@ -338,7 +341,8 @@ class KerasFittedQAgent(FittedQAgent):
         sess = tf.keras.backend.get_session()
         saver.restore(sess, save_path +"/saved/model.cpkt")
 
-    def load_network(self, load_path):
+
+    def load_network(self, load_path): #tested
         '''
         Loads network weights from file
         '''
