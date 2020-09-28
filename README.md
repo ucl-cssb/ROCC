@@ -14,6 +14,7 @@ export PYTHONPATH="${PYTHONPATH}:<path to ROCC_master>"
 ### Dependencies
 Standard python dependencies are required: `numpy`, `scipy`, `matplotlib`.`yaml` is required to parse parameter files.  `TensorFlow` is required). Instructions for installing 'TensorFlow' can be found here:
  https://www.tensorflow.org/install/
+ NOTE: newer versions of tensorflow break some of the code, version 2.1.2 and lower should work
 
 ### User Instructions
 Code files can be imported into scripts, ensure the ROCC directory is in PYTHONPATH and simply import ROCC. See examples.
