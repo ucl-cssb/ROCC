@@ -50,46 +50,49 @@ class FittedQAgent():
     def get_inputs_targets(self):
         '''
         gets fitted Q inputs and calculates targets for training the Q-network for episodic training
+
+        Vectorised: the transitions are gathered into arrays and the Q-network is
+        evaluated in two batched forward passes, instead of two single-sample
+        predict() calls per transition. The arithmetic is identical to the original
+        loop; only the number of Keras calls changes.
         '''
 
-        inputs = []
-        targets = []
+        states, actions, costs, next_states, dones = [], [], [], [], []
 
-        # DO THIS WITH NUMPY TO MAKE IT FASTER
         for trajectory in self.memory:
-
             for transition in trajectory:
-                # CHEKC TARGET IS BUILT CORRECTLY
-
                 state, action, cost, next_state, done = transition
-                inputs.append(state)
-                # construct target
-                values = self.predict(state)
+                states.append(state)
+                actions.append(action)
+                costs.append(cost)
+                next_states.append(next_state)
+                dones.append(done)
 
-                next_values = self.predict(next_state)
+        states = np.array(states, dtype=float)
+        next_states = np.array(next_states, dtype=float)
+        actions = np.array(actions, dtype=int)
+        costs = np.array(costs, dtype=float)
+        dones = np.array(dones, dtype=bool)
 
-                assert len(values) == self.n_actions, 'neural network returning wrong number of values'
-                assert len(next_values) == self.n_actions, 'neural network returning wrong number of values'
+        # two batched forward passes replace 2N single-sample calls
+        values = np.array(self.network.predict(states, batch_size=256), dtype=float)
+        next_values = np.array(self.network.predict(next_states, batch_size=256), dtype=float)
 
-                #update the value for the taken action using cost function and current Q
+        assert values.shape[1] == self.n_actions, 'neural network returning wrong number of values'
+        assert next_values.shape[1] == self.n_actions, 'neural network returning wrong number of values'
 
-                if not done:
-                    values[action] = cost + self.gamma*np.max(next_values) # could introduce step size here, maybe not needed for neural agent
-                else:
-                    values[action] = cost
+        # update the value for the taken action using cost function and current Q
+        targets = values.copy()
+        bootstrapped = costs + self.gamma * np.max(next_values, axis=1)
+        targets[np.arange(len(targets)), actions] = np.where(dones, costs, bootstrapped)
 
-                targets.append(values)
+        inputs = states
 
         # shuffle inputs and target for IID
-        inputs, targets  = np.array(inputs), np.array(targets)
-
-
-
         randomize = np.arange(len(inputs))
         np.random.shuffle(randomize)
         inputs = inputs[randomize]
         targets = targets[randomize]
-
 
         assert inputs.shape[1] == self.state_size, 'inputs to network wrong size'
         assert targets.shape[1] == self.n_actions, 'targets for network wrong size'
@@ -261,9 +264,10 @@ class FittedQAgent():
 
 
 class KerasFittedQAgent(FittedQAgent):
-    def __init__(self, layer_sizes = [2,20,20,4]):
+    def __init__(self, layer_sizes = [2,20,20,4], seed = None):
         self.memory = []
         self.layer_sizes = layer_sizes
+        self.seed = seed
         self.network = self.initialise_network(layer_sizes)
         self.gamma = 0.9
         self.state_size = layer_sizes[0]
@@ -282,6 +286,10 @@ class KerasFittedQAgent(FittedQAgent):
         '''
 
         tf.keras.backend.clear_session()
+        # clear_session() builds a fresh graph, so the graph-level seed must be set
+        # after it, not before, or it is discarded.
+        if getattr(self, 'seed', None) is not None:
+            tf.set_random_seed(self.seed)
         initialiser = keras.initializers.RandomUniform(minval = -0.5, maxval = 0.5, seed = None)
         positive_initialiser = keras.initializers.RandomUniform(minval = 0., maxval = 0.35, seed = None)
         regulariser = keras.regularizers.l1_l2(l1=0.01, l2=0.01)
